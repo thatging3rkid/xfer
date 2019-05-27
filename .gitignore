@@ -27,5 +27,6 @@ hs_err_pid*
 out/
 .idea/
 
-# xfer keys
+# xfer data
 *.key
+data/

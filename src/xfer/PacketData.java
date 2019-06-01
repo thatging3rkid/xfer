@@ -81,7 +81,7 @@ public class PacketData {
         return number;
     }
 
-    public short getID() {
+    public short getClientID() {
         return id;
     }
 

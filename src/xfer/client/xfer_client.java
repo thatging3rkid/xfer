@@ -102,6 +102,11 @@ public class xfer_client {
                         net.send(Type.RQST_LIST, params, new byte[0]);
                         data = net.receive(Type.RESP_LIST, 10);
 
+                        // Make sure we didn't get an invalid packet
+                        if (data == null) {
+                            continue loop;
+                        }
+
                         // Print the message
                         System.out.println(new String(data));
                         break;

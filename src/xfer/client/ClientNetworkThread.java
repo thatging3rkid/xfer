@@ -65,16 +65,31 @@ public class ClientNetworkThread {
 
     public synchronized byte[] receive(Type type, int timeout) throws Exception {
         long endtime = System.currentTimeMillis() + (timeout * 1000);
+        PacketData match = null;
 
+        loop:
         while (endtime > System.currentTimeMillis()) {
-            // Search the queue for a match
             for (PacketData pd : recv_queue) {
+                // Look for an exact match
                 if (pd.getType() == type) {
-                    return pd.getData();
+                    match = pd;
+                    break loop;
+                }
+
+                // Need to check for an invalid packet
+                if (pd.getType() == Type.INVALID && pd.getNumber() == next_packetnum) {
+                    System.err.println("invalid parameters");
+                    return null;
                 }
             }
 
             Thread.sleep(20);
+        }
+
+        // See if a match was found, if so remove it and return the data
+        if (match != null) {
+            recv_queue.remove(match);
+            return match.getData();
         }
 
         throw new TimeoutException("receive(): timed out");
@@ -119,7 +134,7 @@ public class ClientNetworkThread {
                             // Search for a matching packet
                             int index = -1;
                             for (int i = 0; i < unacknowledged.size(); i += 1) {
-                                if (pd.getID() == unacknowledged.get(i).getID()) {
+                                if (pd.getClientID() == unacknowledged.get(i).getClientID()) {
                                     index = i;
                                     break;
                                 }
@@ -132,7 +147,7 @@ public class ClientNetworkThread {
                             break;
 
                         case RESP_INIT:
-                            id = pd.getID();
+                            id = pd.getClientID();
                             break;
                     }
 

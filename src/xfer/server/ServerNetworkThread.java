@@ -70,7 +70,7 @@ public class ServerNetworkThread {
 
                     // Update the packet number map
                     if (pd.getNumber() != 0) {
-                        number_map.put(pd.getID(), (byte) (pd.getNumber() + 1));
+                        number_map.put(pd.getClientID(), (byte) (pd.getNumber() + 1));
                     }
 
                     switch (pd.getType()) {
@@ -85,11 +85,12 @@ public class ServerNetworkThread {
                             break;
 
                         case RQST_LIST:
+                            // Pass responsibility to the server model
                             DataTuple tuple = model.request_list(pd.getParams());
                             if (tuple == null) {
-                                send(Type.INVALID, pd.getID(), new byte[0], new byte[0], addr);
+                                send(Type.INVALID, pd.getClientID(), new byte[0], new byte[0], addr);
                             } else {
-                                send(Type.RESP_LIST, pd.getID(), tuple.params, tuple.data, addr);
+                                send(Type.RESP_LIST, pd.getClientID(), tuple.params, tuple.data, addr);
                             }
 
                             break;

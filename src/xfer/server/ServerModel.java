@@ -27,10 +27,12 @@ public class ServerModel {
         DataTuple tuple = new DataTuple();
         Path p = directory.toPath();
 
+        // Check for parameters
         if (params.length != 0) {
             p = Paths.get(p.toString(), new String(params));
         }
 
+        // Make the directory to search in, make sure it's valid
         File dir = new File(p.toString());
         if (!dir.exists() || dir.listFiles() == null) {
             return null;
@@ -38,7 +40,7 @@ public class ServerModel {
 
         // Save data in a StringBuilder
         StringBuilder sb = new StringBuilder();
-        sb.append("listing " + LocalDateTime.now());
+        sb.append("listing " + LocalDateTime.now() + "\n");
 
         // Print the file information
         for (File f : dir.listFiles()) {
@@ -48,6 +50,8 @@ public class ServerModel {
             sb.append("\n");
         }
 
+        // Remove the last newline and convert
+        sb.deleteCharAt(sb.length() - 1);
         tuple.data = sb.toString().getBytes(StandardCharsets.UTF_8);
 
         return tuple;

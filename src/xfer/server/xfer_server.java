@@ -1,6 +1,5 @@
 package xfer.server;
 
-import com.sun.security.ntlm.Server;
 import java.io.File;
 import xfer.KeyFile;
 

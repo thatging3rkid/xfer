@@ -3,8 +3,9 @@ package xfer.client;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import xfer.Constants.PacketData;
+import xfer.PacketData;
 import xfer.Constants.Type;
 import xfer.KeyFile;
 import xfer.Utils;
@@ -80,7 +81,6 @@ public class xfer_client {
                 // Prompt the user
                 System.out.print(net.getIDString() + ":" + server + "> ");
                 String command = br.readLine();
-                PacketData data;
 
                 // Parse it and check the result
                 List<String> split = Utils.parse(command);
@@ -88,10 +88,25 @@ public class xfer_client {
                     continue;
                 }
 
+                byte[] params = new byte[0];
+                byte[] data = new byte[0];
+
                 switch (split.get(0)) {
                     case "list":
-                        net.send(Type.RQST_LIST, new byte[0], new byte[0]);
+                        // Pass in any arguments
+                        if (split.size() > 1) {
+                            params = split.get(1).getBytes(StandardCharsets.UTF_8);
+                        }
+
+                        // Send the request and wait for the response
+                        net.send(Type.RQST_LIST, params, new byte[0]);
+                        data = net.receive(Type.RESP_LIST, 10);
+
+                        // Print the message
+                        System.out.println(new String(data));
                         break;
+
+
 
                     case "quit":
                     case "exit":

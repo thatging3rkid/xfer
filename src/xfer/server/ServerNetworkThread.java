@@ -9,9 +9,9 @@ import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-import xfer.Constants.PacketData;
 import xfer.Constants.Type;
 import xfer.KeyFile;
+import xfer.PacketData;
 import xfer.server.ServerModel.DataTuple;
 
 public class ServerNetworkThread {
@@ -86,7 +86,12 @@ public class ServerNetworkThread {
 
                         case RQST_LIST:
                             DataTuple tuple = model.request_list(pd.getParams());
-                            send(Type.RESP_LIST, pd.getID(), tuple.params, tuple.data, addr);
+                            if (tuple == null) {
+                                send(Type.INVALID, pd.getID(), new byte[0], new byte[0], addr);
+                            } else {
+                                send(Type.RESP_LIST, pd.getID(), tuple.params, tuple.data, addr);
+                            }
+
                             break;
 
                     }

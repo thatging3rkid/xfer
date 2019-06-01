@@ -14,8 +14,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
-import xfer.Constants.PacketData;
 import xfer.Constants.Type;
+import xfer.PacketData;
 
 public class ClientNetworkThread {
 

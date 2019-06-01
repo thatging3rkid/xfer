@@ -6,6 +6,9 @@ import static xfer.Constants.TRANSFER_PORT;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 import xfer.Constants.PacketData;
 import xfer.Constants.Type;
 
@@ -14,11 +17,29 @@ public class ServerNetworkThread {
     private DatagramSocket socket;
 
     private short next_id = 10;
+    private Map<Short, Byte> number_map;
 
     public ServerNetworkThread() throws IOException {
         this.socket = new DatagramSocket(TRANSFER_PORT);
+        this.number_map = new HashMap<>();
 
         new ReaderThread().start();
+    }
+
+    public synchronized void send(Type type, short id, byte[] params, byte[] data, SocketAddress addr) throws Exception {
+        if (number_map.get(id) == null) {
+            System.err.println("unknown id");
+            System.err.flush();
+            return;
+        }
+
+        // Make the packet data
+        PacketData d = new PacketData(type, id, number_map.get(id), params, data);
+        byte[] bytes = d.toByteArray();
+        DatagramPacket packet = new DatagramPacket(bytes, bytes.length, addr);
+
+        // Send the data and mark it as sent
+        socket.send(packet);
     }
 
 
@@ -37,16 +58,28 @@ public class ServerNetworkThread {
 
                     // Parse the packet
                     PacketData pd = new PacketData(data);
+
+                    // Update the packet number map
+                    if (pd.getNumber() != 0) {
+                        number_map.put(pd.getID(), (byte) (pd.getNumber() + 1));
+                    }
+
                     switch (pd.getType()) {
-                        case RESP_INIT:
-                            System.out.println("init recieved");
+                        case RQST_INIT:
+                            // Need to initialize the client and send a response
+                            SocketAddress returnaddr = packet.getSocketAddress();
+
+                            send(Type.RESP_INIT, next_id, new byte[0], new byte[0], returnaddr);
+
+                            next_id += 1;
                             break;
 
 
                     }
                 }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
                 // do nothing
             }
         }

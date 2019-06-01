@@ -3,7 +3,7 @@
  *
  * Reads in the given files and parses for keys
  *
- * @author Connor Henley, cxh1451@rit.edu
+ * @author Connor Henley @thatging3rkid
  */
 package xfer;
 

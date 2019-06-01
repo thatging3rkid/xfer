@@ -18,9 +18,12 @@ public class Constants {
         RQST_INIT,
         RESP_INIT,
 
-        // data request packets
+        // file listing packets
         RQST_LIST,
-        RQST_FILE,
+        RESP_LIST,
+
+        // download request packets
+        DNLD_FILE,
 
         // upload request packets
         UPLD_FILE,

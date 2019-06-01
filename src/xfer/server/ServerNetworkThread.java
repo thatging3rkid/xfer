@@ -68,7 +68,9 @@ public class ServerNetworkThread {
                         case RQST_INIT:
                             // Need to initialize the client and send a response
                             SocketAddress returnaddr = packet.getSocketAddress();
+                            number_map.put(next_id, (byte) (pd.getNumber() + 1));
 
+                            // Send a response
                             send(Type.RESP_INIT, next_id, new byte[0], new byte[0], returnaddr);
 
                             next_id += 1;

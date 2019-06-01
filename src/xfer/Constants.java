@@ -91,10 +91,10 @@ public class Constants {
 
             // Get the client id and packet number
             this.number = data[2];
-            ByteBuffer bb = ByteBuffer.wrap(data, 2, 2);
+            ByteBuffer bb = ByteBuffer.wrap(data, endptr + 1, 2);
             bb.order(ByteOrder.BIG_ENDIAN);
             this.id = bb.getShort();
-            endptr += 2;
+            endptr += 3;
 
             // Parse the parameter array
             int len = data[endptr];

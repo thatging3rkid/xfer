@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import xfer.Constants.PacketData;
 import xfer.Constants.Type;
+import xfer.KeyFile;
+import xfer.server.ServerModel.DataTuple;
 
 public class ServerNetworkThread {
 
@@ -19,9 +21,15 @@ public class ServerNetworkThread {
     private short next_id = 10;
     private Map<Short, Byte> number_map;
 
-    public ServerNetworkThread() throws IOException {
+    private ServerModel model;
+    private KeyFile key;
+
+    public ServerNetworkThread(ServerModel model, KeyFile key) throws IOException {
         this.socket = new DatagramSocket(TRANSFER_PORT);
         this.number_map = new HashMap<>();
+
+        this.model = model;
+        this.key = key;
 
         new ReaderThread().start();
     }
@@ -58,6 +66,7 @@ public class ServerNetworkThread {
 
                     // Parse the packet
                     PacketData pd = new PacketData(data);
+                    SocketAddress addr = packet.getSocketAddress();
 
                     // Update the packet number map
                     if (pd.getNumber() != 0) {
@@ -67,15 +76,18 @@ public class ServerNetworkThread {
                     switch (pd.getType()) {
                         case RQST_INIT:
                             // Need to initialize the client and send a response
-                            SocketAddress returnaddr = packet.getSocketAddress();
                             number_map.put(next_id, (byte) (pd.getNumber() + 1));
 
                             // Send a response
-                            send(Type.RESP_INIT, next_id, new byte[0], new byte[0], returnaddr);
-
+                            send(Type.RESP_INIT, next_id, new byte[0], new byte[0], addr);
                             next_id += 1;
+
                             break;
 
+                        case RQST_LIST:
+                            DataTuple tuple = model.request_list(pd.getParams());
+                            send(Type.RESP_LIST, pd.getID(), tuple.params, tuple.data, addr);
+                            break;
 
                     }
                 }

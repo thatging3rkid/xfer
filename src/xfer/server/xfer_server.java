@@ -6,7 +6,7 @@ import xfer.KeyFile;
 public class xfer_server {
 
     public static void usage() {
-        System.out.println("ssage: xfer_server [public-key]");
+        System.out.println("ssage: xfer_server [directory] [public-key]");
         System.exit(0);
     }
 
@@ -15,15 +15,17 @@ public class xfer_server {
         System.out.println("xfer_utils (file transfer) server");
 
         // Check command-line arguments
-        if (args.length != 1) {
+        if (args.length != 2) {
             usage();
         }
 
-        KeyFile pubkey = new KeyFile(new File(args[0]));
+        File directory = new File(args[0]);
+        KeyFile pubkey = new KeyFile(new File(args[1]));
 
         // Start accepting connections
         try {
-            ServerNetworkThread net = new ServerNetworkThread();
+            ServerModel model = new ServerModel(directory);
+            ServerNetworkThread net = new ServerNetworkThread(model, pubkey);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

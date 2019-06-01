@@ -112,6 +112,5 @@ public class xfer_client {
             e.printStackTrace();
             System.exit(1);
         }
-
     }
 }

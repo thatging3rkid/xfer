@@ -1,5 +1,8 @@
 package xfer;
 
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -58,6 +61,27 @@ public class Utils {
         }
 
         return parsed;
+    }
+
+    public static String listing(File dir) {
+        if (dir == null || dir.listFiles() == null) {
+            return "";
+        }
+        // Save data in a StringBuilder
+        StringBuilder sb = new StringBuilder();
+        sb.append("listing" + "\n");
+
+        // Print the file information
+        for (File f : dir.listFiles()) {
+            sb.append((f.isDirectory())? 'd' : '-');
+            sb.append("  ");
+            sb.append(f.getName());
+            sb.append("\n");
+        }
+
+        // Remove the last newline and convert
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 
 }

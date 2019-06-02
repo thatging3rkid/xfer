@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import xfer.PacketData;
 import xfer.Constants.Type;
@@ -93,25 +95,68 @@ public class xfer_client {
 
                 switch (split.get(0)) {
                     case "list":
-                        // Pass in any arguments
+                        // Parse the arguments
+                        boolean local = false;
+                        String dir = null;
+
                         if (split.size() > 1) {
-                            params = split.get(1).getBytes(StandardCharsets.UTF_8);
+                            for (String s : split.subList(1, split.size())) {
+                                switch (s) {
+                                    // Check for a local listing
+                                    case "-local":
+                                        local = !local;
+                                        break;
+
+                                    // Default to it being the directory
+                                    default:
+                                        // Only accept one argument, after that, error out
+                                        if (dir == null) {
+                                            dir = s;
+                                        } else {
+                                            System.err.println("invalid arguments");
+                                            System.err.flush();
+                                            continue loop;
+                                        }
+                                        break;
+                                }
+                            }
                         }
 
-                        // Send the request and wait for the response
-                        net.send(Type.RQST_LIST, params, new byte[0]);
-                        data = net.receive(Type.RESP_LIST, 10);
+                        // Pass in any arguments
+                        if (dir != null) {
+                            params = dir.getBytes(StandardCharsets.UTF_8);
+                        }
 
-                        // Make sure we didn't get an invalid packet
-                        if (data == null) {
-                            continue loop;
+                        if (!local) {
+                            // Send the request and wait for the response
+                            net.send(Type.RQST_LIST, params, new byte[0]);
+                            data = net.receive(Type.RESP_LIST, 10);
+
+                            // Make sure we didn't get an invalid packet
+                            if (data == null) {
+                                continue loop;
+                            }
+                        } else {
+                            // Append paths
+                            Path p = directory.toPath();
+                            if (dir != null) {
+                                p = Paths.get(p.toString(), new String(params));
+                            }
+
+                            // Make the directory to search in, make sure it's valid
+                            File t_dir = new File(p.toString());
+                            if (!t_dir.exists() || t_dir.listFiles() == null) {
+                                System.err.println("invalid arguments");
+                                System.err.flush();
+                                continue loop;
+                            }
+
+                            data = Utils.listing(t_dir).getBytes(StandardCharsets.UTF_8);
                         }
 
                         // Print the message
                         System.out.println(new String(data));
                         break;
-
-
 
                     case "quit":
                     case "exit":

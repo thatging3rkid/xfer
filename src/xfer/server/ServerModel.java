@@ -4,7 +4,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import xfer.Utils;
 
 public class ServerModel {
 
@@ -38,22 +38,8 @@ public class ServerModel {
             return null;
         }
 
-        // Save data in a StringBuilder
-        StringBuilder sb = new StringBuilder();
-        sb.append("listing " + LocalDateTime.now() + "\n");
-
-        // Print the file information
-        for (File f : dir.listFiles()) {
-            sb.append((f.isDirectory())? 'd' : '-');
-            sb.append("  ");
-            sb.append(f.getName());
-            sb.append("\n");
-        }
-
-        // Remove the last newline and convert
-        sb.deleteCharAt(sb.length() - 1);
-        tuple.data = sb.toString().getBytes(StandardCharsets.UTF_8);
-
+        // Save the data
+        tuple.data = Utils.listing(dir).getBytes(StandardCharsets.UTF_8);
         return tuple;
     }
 

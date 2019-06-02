@@ -30,3 +30,4 @@ out/
 # xfer data
 *.key
 data/
+files/
